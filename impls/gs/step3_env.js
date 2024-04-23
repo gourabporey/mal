@@ -4,15 +4,16 @@ const { read_str } = require("./reader");
 const { pr_str } = require("./printer");
 const { MalList, Symbol, MalVector, MalType, MalHashMap } = require("./types");
 const { Env } = require("./env");
-const { chunk } = require("lodash");
+const { chunk, sum, subtract, divide, multiply } = require("lodash");
 
 const rl = readline.createInterface({ input, output });
+const toValue = (e) => e.value;
 
 const env = new Env();
-env.set("+", (a, b) => new MalType(a.value + b.value));
-env.set("-", (a, b) => new MalType(a.value - b.value));
-env.set("/", (a, b) => new MalType(a.value / b.value));
-env.set("*", (a, b) => new MalType(a.value * b.value));
+env.set("+", (...args) => new MalType(sum(args.map(toValue))));
+env.set("-", (...args) => new MalType(args.map(toValue).reduce(subtract)));
+env.set("/", (...args) => new MalType(args.map(toValue).reduce(divide)));
+env.set("*", (...args) => new MalType(args.map(toValue).reduce(multiply)));
 
 const READ = (str) => {
   const exp = read_str(str);
