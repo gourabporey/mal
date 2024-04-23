@@ -53,10 +53,28 @@ class MalNil extends MalType {
   }
 }
 
+class MalString extends MalType {
+  constructor(value) {
+    super(value);
+  }
+
+  pr_str() {
+    return '"' + this.value + '"';
+  }
+}
+
 class Symbol extends MalType {
   constructor(value) {
     super(value);
   }
 }
 
-module.exports = { Symbol, MalType, MalList, MalVector, MalHashMap, MalNil };
+module.exports = {
+  Symbol,
+  MalType,
+  MalList,
+  MalVector,
+  MalHashMap,
+  MalNil,
+  MalString,
+};

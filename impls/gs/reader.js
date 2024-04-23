@@ -5,6 +5,7 @@ const {
   MalVector,
   MalHashMap,
   MalNil,
+  MalString,
 } = require("./types");
 
 class Reader {
@@ -36,12 +37,25 @@ const tokenize = (input) => {
     .filter((e) => e !== "");
 };
 
+const regexes = {
+  DIGIT: /^-?[0-9][0-9.]*$/,
+};
+
+const matchRegex = (regex, str) => new RegExp(regex).test(str);
+
+const isDigit = (token) => matchRegex(regexes.DIGIT, token);
+const isString = (token) => token.startsWith('"');
+
+const createString = (token) => {
+  if (token.endsWith('"')) return token.slice(1, -1);
+  throw new Error("unbalanced");
+};
+
 const read_atom = (reader) => {
   const atom = reader.next();
-  const digitRegex = /^-?[0-9][0-9.]*$/;
 
   switch (true) {
-    case digitRegex.test(atom):
+    case isDigit(atom):
       return new MalType(new Number(atom).valueOf());
     case atom === "true":
       return new MalType(true);
@@ -49,6 +63,8 @@ const read_atom = (reader) => {
       return new MalType(false);
     case atom === "nil":
       return new MalNil();
+    case isString(atom):
+      return new MalString(createString(atom));
     default:
       return new Symbol(atom);
   }
