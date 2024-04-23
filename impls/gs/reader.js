@@ -107,7 +107,20 @@ const read_form = (reader) => {
     case "}":
       throw new Error("unbalanced");
     case "'":
-      return new MalList(["quote", read_atom(reader.next() && reader)]);
+      reader.next();
+      return new MalList(["quote", read_form(reader)]);
+    case "`":
+      reader.next();
+      return new MalList(["quasiquote", read_form(reader)]);
+    case "~":
+      reader.next();
+      return new MalList(["unquote", read_form(reader)]);
+    case "~@":
+      reader.next();
+      return new MalList(["splice-unquote", read_form(reader)]);
+    case "@":
+      reader.next();
+      return new MalList(["deref", read_form(reader)]);
     default:
       return read_atom(reader);
   }
