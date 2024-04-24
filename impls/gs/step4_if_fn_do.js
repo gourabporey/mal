@@ -55,7 +55,7 @@ const handleIf = (ast, env) => {
 const handleFn = (ast, env) => {
   return new MalFn((...args) => {
     const [_, bindings, body] = ast.value;
-    return EVAL(body, new Env(env, bindings.value, args.map(toValue)));
+    return EVAL(body, Env.new(env, bindings.value, args.map(toValue)));
   });
 };
 

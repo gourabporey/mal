@@ -2,16 +2,15 @@ class Env {
   #outer;
   #data;
 
-  constructor(outer, bindings = [], exprs = []) {
+  constructor(outer) {
     this.#outer = outer;
     this.#data = new Map();
-    this.#bindArgs(bindings, exprs);
   }
 
-  #bindArgs(bindings, exprs) {
-    bindings.forEach((b, i) => {
-      this.set(b.value, exprs[i]);
-    });
+  static new(outer, bindings = [], exprs = []) {
+    const newEnv = new Env(outer);
+    bindings.forEach((b, i) => newEnv.set(b.value, exprs[i]));
+    return newEnv;
   }
 
   set(key, val) {
