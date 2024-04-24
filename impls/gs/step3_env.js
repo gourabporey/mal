@@ -2,7 +2,14 @@ const readline = require("node:readline");
 const { stdin: input, stdout: output } = require("node:process");
 const { read_str } = require("./reader");
 const { pr_str } = require("./printer");
-const { MalList, Symbol, MalVector, MalType, MalHashMap } = require("./types");
+const {
+  MalList,
+  Symbol,
+  MalVector,
+  MalType,
+  MalHashMap,
+  MalNil,
+} = require("./types");
 const { Env } = require("./env");
 const { chunk, sum, subtract, divide, multiply } = require("lodash");
 
@@ -27,11 +34,9 @@ const handleDef = ([key, val]) => {
 };
 
 const handleLet = (ast, env) => {
-  const lastExpression = ast.value.at(-1);
-  const bindings = ast.value.slice(1, -1);
-  bindings
-    .flatMap(({ value }) => chunk(value, 2))
-    .forEach(([key, val]) => env.set(key.value, EVAL(val, env).value));
+  const lastExpression = ast.value[2] || new MalNil();
+  const bindings = chunk(ast.value[1].value, 2);
+  bindings.forEach(([key, val]) => env.set(key.value, EVAL(val, env).value));
 
   return EVAL(lastExpression, env);
 };
