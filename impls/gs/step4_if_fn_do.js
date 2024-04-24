@@ -13,15 +13,15 @@ const {
 } = require("./types");
 const { Env } = require("./env");
 const { chunk, sum, subtract, divide, multiply } = require("lodash");
+const ns = require("./core");
 
 const rl = readline.createInterface({ input, output });
 const toValue = (e) => e.value;
 
 const env = new Env();
-env.set("+", (...args) => new MalType(sum(args.map(toValue))));
-env.set("-", (...args) => new MalType(args.map(toValue).reduce(subtract)));
-env.set("/", (...args) => new MalType(args.map(toValue).reduce(divide)));
-env.set("*", (...args) => new MalType(args.map(toValue).reduce(multiply)));
+Object.entries(ns).forEach(([fn, exp]) => {
+  env.set(fn, exp);
+});
 
 const READ = (str) => {
   const exp = read_str(str);
@@ -43,24 +43,25 @@ const handleLet = (ast, env) => {
 };
 
 const handleIf = (ast, env) => {
-  const [_, pred, th, el] = ast.value;
-  const astToExecute = [false, null].includes(EVAL(pred, env).value) ? el : th;
+  const [_, pred, then, el = new MalNil()] = ast.value;
+  console.log({ pred: pred.value, el, then });
+  const result = EVAL(pred, env).value;
+  console.log({ result });
+  const astToExecute = [false, null].includes(result) ? el : then;
 
   return EVAL(astToExecute, env);
 };
 
 const handleFn = (ast, env) => {
   return new MalFn((...args) => {
-    return EVAL(
-      ast.value[2],
-      new Env(env, ast.value[1].value, args.map(toValue))
-    );
+    const [_, bindings, body] = ast.value;
+    return EVAL(body, new Env(env, bindings.value, args.map(toValue)));
   });
 };
 
 const eval_ast = (ast, env) => {
   if (ast instanceof Symbol) {
-    const fn = env.get(ast.value) || ast.value;
+    const fn = env.get(ast.value);
     if (fn === undefined) throw new Error("No Value Found");
     if (fn instanceof Function) return new MalFn(fn);
     return new MalType(fn);
@@ -84,8 +85,6 @@ const eval_ast = (ast, env) => {
 };
 
 const EVAL = (ast, env) => {
-  // console.log({ ast, env: env.data });
-
   if (!(ast instanceof MalList)) {
     return eval_ast(ast, env);
   }
@@ -96,12 +95,11 @@ const EVAL = (ast, env) => {
 
   switch (ast.value[0].value) {
     case "def!":
-      return handleDef(ast.value.slice(1, 3), env);
+      return handleDef(ast.value.slice(1, 3));
     case "let*":
       const newEnv = new Env(env);
       return handleLet(ast, newEnv);
     case "do":
-      // TODO: separate it out to fn and have a context variable changing over time
       return eval_ast(new MalList(ast.value.slice(1)), env).value.at(-1);
     case "if":
       return handleIf(ast, env);
@@ -129,4 +127,5 @@ const repl = () => {
   });
 };
 
+rep("(def! not (fn* (a) (if a false true)))");
 repl();

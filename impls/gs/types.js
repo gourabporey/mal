@@ -9,9 +9,25 @@ class MalType {
   pr_str() {
     return this.value;
   }
+
+  equals(other) {
+    return this.value === other.value;
+  }
 }
 
-class MalList extends MalType {
+class MalSeq extends MalType {
+  constructor(list) {
+    super(list);
+  }
+
+  equals(other) {
+    if (!(other instanceof MalSeq)) return false;
+    if (this.value.length !== other.value.length) return false;
+    return this.value.every((val, i) => val.equals(other.value[i]));
+  }
+}
+
+class MalList extends MalSeq {
   constructor(list) {
     super(list);
   }
@@ -21,7 +37,7 @@ class MalList extends MalType {
   }
 }
 
-class MalVector extends MalType {
+class MalVector extends MalSeq {
   constructor(list) {
     super(list);
   }
@@ -31,8 +47,8 @@ class MalVector extends MalType {
   }
 }
 
-class MalHashMap extends MalType {
-  constructor(pairs) {
+class MalHashMap extends MalSeq {
+  constructor(pairs = []) {
     super(pairs);
   }
 

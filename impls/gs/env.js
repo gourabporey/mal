@@ -19,7 +19,9 @@ class Env {
   }
 
   find(key) {
-    const val = this.#data.get(key) || this.#outer?.get(key);
+    const val = this.#data.has(key)
+      ? this.#data.get(key)
+      : this.#outer?.get(key);
     if (val === undefined) throw new Error(`${key} not found`);
     return val;
   }
