@@ -1,9 +1,9 @@
-const { sum, multiply, subtract, divide } = require("lodash");
+const _ = require("lodash");
 const { MalList, MalType, MalVector, MalNil } = require("./types");
 
 const toValue = (e) => e.value;
 
-const executeFunction = (fn, args) => new MalType(args.map(toValue).reduce(fn));
+const reduceArgs = (fn, args) => new MalType(args.map(toValue).reduce(fn));
 
 function partitionArray(arr, chunkSize = 1, overlap = 1) {
   const result = [];
@@ -14,32 +14,49 @@ function partitionArray(arr, chunkSize = 1, overlap = 1) {
   return result;
 }
 
+const sum = (...args) => new MalType(_.sum(args.map(toValue)));
+const subtract = (...args) => reduceArgs(_.subtract, args);
+const multiply = (...args) => reduceArgs(_.multiply, args);
+const divide = (...args) => reduceArgs(_.divide, args);
+const isGreaterThan = (...args) => reduceArgs((a, b) => a > b, args);
+const isLesserThan = (...args) => reduceArgs((a, b) => a < b, args);
+const and = (...args) => reduceArgs((a, b) => a && b, args);
+const isLesserThanOrEqual = (...args) => reduceArgs((a, b) => a <= b, args);
+const isGreaterThanOrEqual = (...args) => reduceArgs((a, b) => a >= b, args);
+const list = (...args) => new MalList(args);
+const isList = (x) => new MalType(x instanceof MalList);
+
+const isEqual = (...args) => {
+  if (args.length === 1) return new MalType(true);
+  const argPairs = partitionArray(args, 2, 1);
+  return new MalType(argPairs.every(([a, b]) => a.equals(b)));
+};
+
+const isEmpty = (x) => {
+  if (x instanceof MalNil) return new MalType(true);
+  return new MalType((x.value || []).length === 0);
+};
+
+const count = (list) => {
+  if (list instanceof MalNil) return new MalType(0);
+  return new MalType((list.value || []).length);
+};
+
 const ns = {
-  "+": (...args) => new MalType(sum(args.map(toValue))),
-  "-": (...args) => executeFunction(subtract, args),
-  "*": (...args) => executeFunction(multiply, args),
-  "/": (...args) => executeFunction(divide, args),
-  "=": (...args) => {
-    if (args.length === 1) return new MalType(true);
-    const argPairs = partitionArray(args, 2, 1);
-    return new MalType(argPairs.every(([a, b]) => a.equals(b)));
-  },
-  "<": (...args) => executeFunction((a, b) => a < b, args),
-  "<=": (...args) => executeFunction((a, b) => a <= b, args),
-  ">": (...args) => executeFunction((a, b) => a > b, args),
-  "and": (...args) => executeFunction((a, b) => a && b, args),
-  ">=": (...args) => executeFunction((a, b) => a >= b, args),
-  "list": (...args) => new MalList(args),
-  "list?": (x) => new MalType(x instanceof MalList),
-  "empty?": (x) => {
-    if (x instanceof MalNil) return new MalType(true);
-    return new MalType((x.value || []).length === 0);
-  },
-  "count": (list) => {
-    if (list instanceof MalNil) return new MalType(0);
-    return new MalType((list.value || []).length);
-  },
-  // "not": (x) => new MalType(!x.value),
+  "+": sum,
+  "-": subtract,
+  "*": multiply,
+  "/": divide,
+  "=": isEqual,
+  "<": isLesserThan,
+  "<=": isLesserThanOrEqual,
+  ">": isGreaterThan,
+  "and": and,
+  ">=": isGreaterThanOrEqual,
+  "list": list,
+  "list?": isList,
+  "empty?": isEmpty,
+  "count": count,
 };
 
 module.exports = ns;

@@ -9,7 +9,16 @@ class Env {
 
   static new(outer, bindings = [], exprs = []) {
     const newEnv = new Env(outer);
-    bindings.forEach((b, i) => newEnv.set(b.value, exprs[i]));
+
+    for (let i = 0; i < bindings.length; i++) {
+      const b = bindings[i].value;
+      if (b === "&" && bindings[i + 1]) {
+        newEnv.set(bindings[i + 1].value, exprs.slice(i));
+        break;
+      }
+      newEnv.set(b, exprs[i]);
+    }
+
     return newEnv;
   }
 
