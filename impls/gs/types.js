@@ -69,6 +69,16 @@ class Symbol extends MalType {
   }
 }
 
+class MalFn extends MalType {
+  constructor(value) {
+    super(value);
+  }
+
+  pr_str() {
+    return "#<function>";
+  }
+}
+
 module.exports = {
   Symbol,
   MalType,
@@ -77,4 +87,5 @@ module.exports = {
   MalHashMap,
   MalNil,
   MalString,
+  MalFn,
 };

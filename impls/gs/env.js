@@ -2,9 +2,16 @@ class Env {
   #outer;
   #data;
 
-  constructor(outer) {
+  constructor(outer, bindings = [], exprs = []) {
     this.#outer = outer;
     this.#data = new Map();
+    this.#bindArgs(bindings, exprs);
+  }
+
+  #bindArgs(bindings, exprs) {
+    bindings.forEach((b, i) => {
+      this.set(b.value, exprs[i]);
+    });
   }
 
   set(key, val) {
@@ -19,6 +26,10 @@ class Env {
 
   get(key) {
     return this.find(key);
+  }
+
+  get data() {
+    return this.#data;
   }
 }
 
