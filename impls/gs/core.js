@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const { MalList, MalType, MalVector, MalNil } = require("./types");
+const { MalList, MalType, MalNil } = require("./types");
 
 const toValue = (e) => e.value;
 
@@ -39,7 +39,7 @@ const isEmpty = (x) => {
 
 const count = (list) => {
   if (list instanceof MalNil) return new MalType(0);
-  return new MalType((list.value || []).length);
+  return new MalType(list.count());
 };
 
 const ns = {

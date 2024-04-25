@@ -1,26 +1,17 @@
 const readline = require("node:readline");
+const _ = require("lodash");
 const { stdin: input, stdout: output } = require("node:process");
 const { read_str } = require("./reader");
 const { pr_str } = require("./printer");
-const {
-  MalList,
-  Symbol,
-  MalVector,
-  MalType,
-  MalHashMap,
-  MalNil,
-  MalFn,
-} = require("./types");
+const { MalList, Symbol, MalVector, MalHashMap, MalNil } = require("./types");
 const { Env } = require("./env");
-const { chunk, sum, subtract, divide, multiply } = require("lodash");
 const ns = require("./core");
 
 const rl = readline.createInterface({ input, output });
-const toValue = (e) => e.value;
 
 const env = new Env();
 Object.entries(ns).forEach(([fn, exp]) => {
-  env.set(fn, exp);
+  env.set(new Symbol(fn), exp);
 });
 
 const READ = (str) => {
@@ -30,41 +21,37 @@ const READ = (str) => {
 
 const handleDef = ([key, val]) => {
   const value = EVAL(val, env);
-  env.set(key.value, value.value);
+  env.set(key, value);
   return value;
 };
 
 const handleLet = (ast, env) => {
+  const newEnv = new Env(env);
   const lastExpression = ast.value[2] || new MalNil();
-  const bindings = chunk(ast.value[1].value, 2);
-  bindings.forEach(([key, val]) => env.set(key.value, EVAL(val, env).value));
+  const bindings = _.chunk(ast.value[1].value, 2);
+  bindings.forEach(([k, v]) => newEnv.set(k, EVAL(v, newEnv)));
 
-  return EVAL(lastExpression, env);
+  return EVAL(lastExpression, newEnv);
 };
 
 const handleIf = (ast, env) => {
   const [_, pred, then, el = new MalNil()] = ast.value;
-  console.log({ pred: pred.value, el, then });
   const result = EVAL(pred, env).value;
-  console.log({ result });
   const astToExecute = [false, null].includes(result) ? el : then;
 
   return EVAL(astToExecute, env);
 };
 
 const handleFn = (ast, env) => {
-  return new MalFn((...args) => {
+  return (...args) => {
     const [_, bindings, body] = ast.value;
-    return EVAL(body, Env.new(env, bindings.value, args.map(toValue)));
-  });
+    return EVAL(body, Env.new(env, bindings.value, args));
+  };
 };
 
 const eval_ast = (ast, env) => {
   if (ast instanceof Symbol) {
-    const fn = env.get(ast.value);
-    if (fn === undefined) throw new Error("No Value Found");
-    if (fn instanceof Function) return new MalFn(fn);
-    return new MalType(fn);
+    return env.get(ast);
   }
 
   if (ast instanceof MalList) {
@@ -97,8 +84,7 @@ const EVAL = (ast, env) => {
     case "def!":
       return handleDef(ast.value.slice(1, 3));
     case "let*":
-      const newEnv = new Env(env);
-      return handleLet(ast, newEnv);
+      return handleLet(ast, env);
     case "do":
       return eval_ast(new MalList(ast.value.slice(1)), env).value.at(-1);
     case "if":
@@ -107,7 +93,7 @@ const EVAL = (ast, env) => {
       return handleFn(ast, env);
     default:
       const [fn, ...args] = eval_ast(ast, env).value;
-      return fn.value.apply(null, args);
+      return fn.apply(null, args);
   }
 };
 

@@ -25,6 +25,10 @@ class MalSeq extends MalType {
     if (this.value.length !== other.value.length) return false;
     return this.value.every((val, i) => val.equals(other.value[i]));
   }
+
+  count() {
+    return this.value.length;
+  }
 }
 
 class MalList extends MalSeq {
@@ -67,6 +71,10 @@ class MalNil extends MalType {
   pr_str() {
     return "nil";
   }
+
+  count() {
+    return 0;
+  }
 }
 
 class MalString extends MalType {
@@ -76,6 +84,10 @@ class MalString extends MalType {
 
   pr_str() {
     return '"' + this.value + '"';
+  }
+
+  count() {
+    return this.value.length;
   }
 }
 
