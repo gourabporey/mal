@@ -11,7 +11,6 @@ class Env {
 
   static new(outer, bindings = [], exprs = []) {
     const newEnv = new Env(outer);
-    console.log({ exprs });
 
     for (let i = 0; i < bindings.length; i++) {
       const b = bindings[i];

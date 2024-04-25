@@ -1,5 +1,6 @@
 const _ = require("lodash");
-const { MalList, MalType, MalNil } = require("./types");
+const { MalList, MalType, MalNil, MalString } = require("./types");
+const { pr_str } = require("./printer");
 
 const toValue = (e) => e.value;
 
@@ -42,6 +43,19 @@ const count = (list) => {
   return new MalType(list.count());
 };
 
+const str = (...args) => {
+  return new MalString(
+    args
+      .map((arg) => (arg instanceof MalString ? arg.value : arg.pr_str()))
+      .join("")
+  );
+};
+
+const prn = (...args) => {
+  console.log(...args.map(pr_str));
+  return new MalNil();
+};
+
 const ns = {
   "+": sum,
   "-": subtract,
@@ -57,6 +71,8 @@ const ns = {
   "list?": isList,
   "empty?": isEmpty,
   "count": count,
+  "prn": prn,
+  "str": str,
 };
 
 module.exports = ns;
