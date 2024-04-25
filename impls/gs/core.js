@@ -6,14 +6,14 @@ const toValue = (e) => e.value;
 
 const reduceArgs = (fn, args) => new MalType(args.map(toValue).reduce(fn));
 
-function partitionArray(arr, chunkSize = 1, overlap = 1) {
+const partitionArray = (arr, chunkSize = 1, overlap = 1) => {
   const result = [];
   const step = chunkSize - overlap;
   for (let i = 0; i < arr.length - step; i += step) {
     result.push(arr.slice(i, i + chunkSize));
   }
   return result;
-}
+};
 
 const sum = (...args) => new MalType(_.sum(args.map(toValue)));
 const subtract = (...args) => reduceArgs(_.subtract, args);
@@ -52,7 +52,7 @@ const str = (...args) => {
 };
 
 const prn = (...args) => {
-  console.log(...args.map(pr_str));
+  console.log(...args.map((arg) => pr_str(arg, false)));
   return new MalNil();
 };
 

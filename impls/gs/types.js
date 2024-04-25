@@ -82,7 +82,18 @@ class MalString extends MalType {
     super(value);
   }
 
-  pr_str() {
+  pr_str(printReadably = false) {
+    if (printReadably) {
+      return (
+        '"' +
+        this.pr_str()
+          .replace(/\\/g, "\\\\")
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, "\\n") +
+        '"'
+      );
+    }
+
     return '"' + this.value + '"';
   }
 

@@ -49,6 +49,10 @@ const handleFn = (ast, env) => {
   };
 };
 
+const handleDo = (ast, env) => {
+  return eval_ast(new MalList(ast.value.slice(1)), env).value.at(-1);
+};
+
 const eval_ast = (ast, env) => {
   if (ast instanceof Symbol) {
     return env.get(ast);
@@ -86,7 +90,7 @@ const EVAL = (ast, env) => {
     case "let*":
       return handleLet(ast, env);
     case "do":
-      return eval_ast(new MalList(ast.value.slice(1)), env).value.at(-1);
+      return handleDo(ast, env);
     case "if":
       return handleIf(ast, env);
     case "fn*":
