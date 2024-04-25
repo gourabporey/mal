@@ -1,4 +1,4 @@
-const { MalList, MalType } = require("./types");
+const { MalList } = require("./types");
 
 class Env {
   #outer;
@@ -15,8 +15,7 @@ class Env {
     for (let i = 0; i < bindings.length; i++) {
       const b = bindings[i];
       if (b.value === "&" && bindings[i + 1]) {
-        const rest = exprs.slice(i);
-        newEnv.set(bindings[i + 1], new MalList(rest));
+        newEnv.set(bindings[i + 1], new MalList(exprs.slice(i)));
         break;
       }
       newEnv.set(b, exprs[i]);
@@ -30,15 +29,13 @@ class Env {
   }
 
   find(key) {
-    const val = this.#data.has(key.value)
-      ? this.#data.get(key.value)
-      : this.#outer?.find(key);
-    if (val === undefined) throw new Error(`${key.value} not found`);
-    return val;
+    return this.#data.has(key.value) ? this : this.#outer?.find(key);
   }
 
   get(key) {
-    return this.find(key);
+    const env = this.find(key);
+    if (env) return env.#data.get(key.value);
+    throw new Error(`${key.value} not found`);
   }
 
   get data() {

@@ -108,9 +108,12 @@ class Symbol extends MalType {
   }
 }
 
-class MalFn extends MalType {
-  constructor(value) {
-    super(value);
+class MalFunc extends MalType {
+  constructor(body, params, env) {
+    super();
+    this.body = body;
+    this.params = params;
+    this.env = env;
   }
 
   pr_str() {
@@ -126,5 +129,5 @@ module.exports = {
   MalHashMap,
   MalNil,
   MalString,
-  MalFn,
+  MalFunc,
 };
