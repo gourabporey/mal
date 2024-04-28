@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const fs = require("fs");
 const { MalList, MalType, MalNil, MalString } = require("./types");
 const { pr_str } = require("./printer");
 const { read_str } = require("./reader");
@@ -57,6 +58,8 @@ const prn = (...args) => {
   return new MalNil();
 };
 
+const slurp = (f) => new MalString(fs.readFileSync(f.value, "utf8"));
+
 const ns = {
   "+": sum,
   "-": subtract,
@@ -75,6 +78,7 @@ const ns = {
   "prn": prn,
   "str": str,
   "read-string": (v) => read_str(v.value),
+  "slurp": slurp,
 };
 
 module.exports = ns;

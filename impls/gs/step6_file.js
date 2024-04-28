@@ -20,6 +20,7 @@ const env = new Env();
 Object.entries(ns).forEach(([fn, exp]) => {
   env.set(new Symbol(fn), exp);
 });
+env.set(new Symbol("eval"), (ast) => EVAL(ast, env));
 
 const READ = (str) => {
   const exp = read_str(str);
@@ -137,4 +138,8 @@ const repl = () => {
 };
 
 rep("(def! not (fn* (a) (if a false true)))");
+rep(
+  '(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))'
+);
+
 repl();
