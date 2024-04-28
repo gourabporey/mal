@@ -1,6 +1,11 @@
 const toString = (elem) =>
   elem instanceof MalType ? elem.pr_str() : elem.toString();
 
+const pr_str = (val, printReadably = false) => {
+  if (val instanceof Function) return "#<function>";
+  return val instanceof MalType ? val.pr_str(printReadably) : val.toString();
+};
+
 class MalType {
   constructor(value) {
     this.value = value;
@@ -37,7 +42,7 @@ class MalList extends MalSeq {
   }
 
   pr_str() {
-    return "(" + this.value.map(toString).join(" ") + ")";
+    return "(" + this.value.map((v) => pr_str(v)).join(" ") + ")";
   }
 }
 
@@ -86,7 +91,7 @@ class MalString extends MalType {
     if (printReadably) {
       return (
         '"' +
-        this.pr_str()
+        this.value
           .replace(/\\/g, "\\\\")
           .replace(/"/g, '\\"')
           .replace(/\n/g, "\\n") +
@@ -130,4 +135,5 @@ module.exports = {
   MalNil,
   MalString,
   MalFunc,
+  pr_str,
 };

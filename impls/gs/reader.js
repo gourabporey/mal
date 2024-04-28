@@ -47,7 +47,10 @@ const isDigit = (token) => matchRegex(regexes.DIGIT, token);
 const isString = (token) => token.startsWith('"');
 
 const createString = (token) => {
-  if (token.endsWith('"')) return token.slice(1, -1);
+  if (token.endsWith('"'))
+    return token
+      .slice(1, -1)
+      .replace(/\\(.)/g, (_, ch) => (ch === "n" ? "\n" : ch));
   throw new Error("unbalanced");
 };
 

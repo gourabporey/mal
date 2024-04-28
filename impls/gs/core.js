@@ -1,6 +1,7 @@
 const _ = require("lodash");
 const { MalList, MalType, MalNil, MalString } = require("./types");
 const { pr_str } = require("./printer");
+const { read_str } = require("./reader");
 
 const toValue = (e) => e.value;
 
@@ -73,6 +74,7 @@ const ns = {
   "count": count,
   "prn": prn,
   "str": str,
+  "read-string": (v) => read_str(v.value),
 };
 
 module.exports = ns;
